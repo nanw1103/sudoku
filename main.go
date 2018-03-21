@@ -83,7 +83,6 @@ func printStat(stat Statistics) {
 	fmt.Println("	fastPathFill:", stat.fastPathFill)
 	fmt.Println("	fastPathPrune:", stat.fastPathPrune, ",", stat.fastPathPruneBranches)
 	fmt.Println("	deducePrune:", stat.deducePrune, ",", stat.deducePruneBranches)
-	fmt.Println("	transpositionPrune:", stat.transpositionPrune)
 	fmt.Println("	failedAttempt:", stat.failedAttempt)
 	fmt.Println("Time ms:", stat.timeCost)
 }

@@ -3,7 +3,7 @@ Learn golang, solve sudoku
 
 Standard sudoku solution should be Exact Cover problem.
 
-To learn go, the implemented algorithm adopts a straightforward backtracing with some prune technics (sudoku deduce, fast path, and transposition table).
+To learn go, the implemented algorithm adopts a straightforward backtracing with some prune and bitset tricks.
 
 
 ```

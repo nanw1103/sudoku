@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"time"
 )
 
@@ -10,7 +9,7 @@ var matrix []byte
 
 const enableDeducePrune = true
 const enableFastPathPrune = true
-const enableTranspositionPrune = true
+// const enableTranspositionPrune = true
 
 ////////////////////////////////////////////////////////////////////////////
 //	Entry
@@ -24,7 +23,7 @@ func Solve(m []byte) (bool, Statistics) {
 	startTime := time.Now().UnixNano() / 1e6
 
 	initSets()
-	transpositionPruneInit()
+	// transpositionPruneInit()
 	openNodes.init(matrix)
 	stat.gaps = openNodes.size
 
@@ -61,7 +60,7 @@ type Statistics struct {
 	fastPathFill          int
 	fastPathPrune         int
 	fastPathPruneBranches int
-	transpositionPrune    int
+	// transpositionPrune    int
 
 	timeCost int64
 	gaps     int
@@ -88,13 +87,13 @@ func solveImpl(depth int) bool {
 	for _, v := range bitSet2Numbers(a) {
 
 		//transposition prune
-		alreadyVisited := transpositionPruneAdd(depth, loc, v)
+		// alreadyVisited := transpositionPruneAdd(depth, loc, v)
 
-		if enableTranspositionPrune && alreadyVisited {
-			stat.transpositionPrune++
-			transpositionPruneRemove(loc, v)
-			continue
-		}
+		// if enableTranspositionPrune && alreadyVisited {
+		// 	stat.transpositionPrune++
+		// 	transpositionPruneRemove(loc, v)
+		// 	continue
+		// }
 
 		matrix[loc] = v     //try filling one
 		onFill(row, col, v) //keep sets up-to-date
@@ -123,7 +122,7 @@ func solveImpl(depth int) bool {
 		onUnfill(row, col, v)
 		openNodes.unremoveFirst()
 
-		transpositionPruneRemove(loc, v)
+		// transpositionPruneRemove(loc, v)
 
 	}
 	return false
@@ -651,57 +650,57 @@ func validateOne(array []byte, loc int, noZero bool) bool {
 ////////////////////////////////////////////////////////////////////////////
 //	Zorbrist hashing & transposition table
 ////////////////////////////////////////////////////////////////////////////
-var zorbristNumbers = make([]uint64, 81*9)
+// var zorbristNumbers = make([]uint64, 81*9)
 
-func init() {
-	for i := range zorbristNumbers {
-		zorbristNumbers[i] = rand.Uint64()
-	}
+// func init() {
+// 	for i := range zorbristNumbers {
+// 		zorbristNumbers[i] = rand.Uint64()
+// 	}
 
-	for i := 0; i < 81; i++ {
-		transpositionDepthSets[i] = setType{}
-	}
-}
+// 	for i := 0; i < 81; i++ {
+// 		transpositionDepthSets[i] = setType{}
+// 	}
+// }
 
-var transpositionCurrent uint64
+// var transpositionCurrent uint64
 
-type setType map[uint64]bool
+// type setType map[uint64]bool
 
-var transpositionDepthSets = make([]setType, 81)
+// var transpositionDepthSets = make([]setType, 81)
 
-func transpositionPruneInit() {
-	transpositionCurrent = 0
-	// for i := 0; i < 81; i++ {
-	// 	transpositionDepthSets[i] = setType{}
-	// }
-}
+// func transpositionPruneInit() {
+// 	transpositionCurrent = 0
+// 	// for i := 0; i < 81; i++ {
+// 	// 	transpositionDepthSets[i] = setType{}
+// 	// }
+// }
 
-func _transpositionPruneMask(loc int, v byte) {
-	transpositionCurrent ^= zorbristNumbers[loc*9+int(v)-1]
-}
+// func _transpositionPruneMask(loc int, v byte) {
+// 	transpositionCurrent ^= zorbristNumbers[loc*9+int(v)-1]
+// }
 
-func transpositionPruneAdd(depth, loc int, v byte) bool {
-	_transpositionPruneMask(loc, v)
+// func transpositionPruneAdd(depth, loc int, v byte) bool {
+// 	_transpositionPruneMask(loc, v)
 
-	if transpositionDepthSets[depth][transpositionCurrent] {
-		return true
-	}
-	transpositionDepthSets[depth][transpositionCurrent] = true
-	return false
-}
+// 	if transpositionDepthSets[depth][transpositionCurrent] {
+// 		return true
+// 	}
+// 	transpositionDepthSets[depth][transpositionCurrent] = true
+// 	return false
+// }
 
-func transpositionPruneRemove(loc int, v byte) {
-	_transpositionPruneMask(loc, v)
-}
+// func transpositionPruneRemove(loc int, v byte) {
+// 	_transpositionPruneMask(loc, v)
+// }
 
-func transpositionPruneDump() {
-	for depth, s := range transpositionDepthSets {
-		if len(s) == 0 {
-			continue
-		}
-		fmt.Println(depth, len(s))
-	}
-}
+// func transpositionPruneDump() {
+// 	for depth, s := range transpositionDepthSets {
+// 		if len(s) == 0 {
+// 			continue
+// 		}
+// 		fmt.Println(depth, len(s))
+// 	}
+// }
 
 ////////////////////////////////////////////////////////////////////////////
 //	PopCount/Hamming weight
