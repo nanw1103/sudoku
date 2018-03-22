@@ -101,14 +101,7 @@ func solveImpl(depth int) bool {
 		//fmt.Println("  Fill ", row, " ", col, " ", i)
 
 		//optional optimization: update open nodes, in the same row/col/box
-		valid := true
-		slots := getEmptySlotsInTheSameRowOrColOrBox(row, col)
-		for _, loc := range slots {
-			if !recalculateOpenNode(loc) {
-				valid = false
-				break
-			}
-		}
+		valid := recalculateAffectedNodes(row, col)
 
 		//solve more
 		if valid && solveImpl(depth+1) {
@@ -164,11 +157,10 @@ func fastPathSolver() bool {
 			}
 		}
 
-		if changed {
-			continue
+		if !changed {
+			return false
 		}
 
-		return false
 	}
 	return true
 }
@@ -182,6 +174,16 @@ func fastPathOnChange(loc int) {
 	}
 }
 
+func recalculateAffectedNodes(row, col int) bool {
+	slots := getEmptySlotsInTheSameRowOrColOrBox(row, col)
+	for _, loc := range slots {
+		if !recalculateOpenNode(loc) {
+			return false
+		}
+	}
+	return true
+}
+		
 func recalculateOpenNode(loc int) bool {
 	r := loc / 9
 	c := loc % 9
@@ -225,11 +227,6 @@ func onUnfill(r, c int, n byte) {
 
 func availableSet(r, c int) uint16 {
 	return rowSet[r] & colSet[c] & boxSet[rowCol2Box(r, c)] & openNodes.meta[r*9+c].available
-}
-
-func notIn(set uint16, n byte) bool {
-	bit := uint16(1) << uint(n-1)
-	return (set & bit) == 0
 }
 
 func initSets() {
@@ -344,15 +341,17 @@ func singleBitSet2Value(a uint16) byte {
 
 func bitSet2Numbers(a uint16) []byte {
 	size := 0
-	ret := make([]byte, popCount(a))
-	for v := byte(1); v <= 9; v++ {
-		if notIn(a, v) {
+	ret := [9]byte {}
+	
+	for i := byte(0); i < 9; i++ {
+		if a & (uint16(1) << uint(i)) == 0 {
 			continue
 		}
-		ret[size] = v
+		ret[size] = i+1
 		size++
 	}
-	return ret
+
+	return ret[:size]
 }
 
 ////////////////////////////////////////////////////////////////////////////
