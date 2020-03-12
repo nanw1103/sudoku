@@ -9,15 +9,19 @@ var matrix []byte
 
 const enableDeducePrune = true
 const enableFastPathPrune = true
+
 // const enableTranspositionPrune = true
 
 ////////////////////////////////////////////////////////////////////////////
 //	Entry
 ////////////////////////////////////////////////////////////////////////////
 
-func Solve(m []byte) (bool, Statistics) {
+// Solve the Sudoku problem. The input array matrix is a
+// 2D matrix in 1D representation: each cell is matrix[row*9+column].
+// The result will be filled in-place.
+// Return success or not and Statistics.
+func Solve(matrix []byte) (bool, Statistics) {
 
-	matrix = m
 	stat = Statistics{}
 
 	startTime := time.Now().UnixNano() / 1e6
@@ -52,6 +56,7 @@ func Solve(m []byte) (bool, Statistics) {
 //	Statistics
 ////////////////////////////////////////////////////////////////////////////
 
+// Statistics of the calculation
 type Statistics struct {
 	backward              int
 	failedAttempt         int
@@ -183,7 +188,7 @@ func recalculateAffectedNodes(row, col int) bool {
 	}
 	return true
 }
-		
+
 func recalculateOpenNode(loc int) bool {
 	r := loc / 9
 	c := loc % 9
@@ -341,13 +346,13 @@ func singleBitSet2Value(a uint16) byte {
 
 func bitSet2Numbers(a uint16) []byte {
 	size := 0
-	ret := [9]byte {}
-	
+	ret := [9]byte{}
+
 	for i := byte(0); i < 9; i++ {
-		if a & (uint16(1) << uint(i)) == 0 {
+		if a&(uint16(1)<<uint(i)) == 0 {
 			continue
 		}
-		ret[size] = i+1
+		ret[size] = i + 1
 		size++
 	}
 
@@ -583,6 +588,7 @@ func (me *sortedNodes) _debugPrintOpenNodes() {
 //	Validation
 ////////////////////////////////////////////////////////////////////////////
 
+// ValidateInput validates the input of a Sudoku matrix
 func ValidateInput(matrix []byte) bool {
 	if len(matrix) != 81 {
 		return false
@@ -599,6 +605,7 @@ func ValidateInput(matrix []byte) bool {
 	return true
 }
 
+// ValidateSolved validates the result of a solved Sudoku matrix
 func ValidateSolved(array []byte) bool {
 	for loc := 0; loc < 81; loc++ {
 		if !validateOne(array, loc, true) {
@@ -608,9 +615,9 @@ func ValidateSolved(array []byte) bool {
 	return true
 }
 
-func validateOne(array []byte, loc int, noZero bool) bool {
+func validateOne(array []byte, loc int, allowZero bool) bool {
 	v := array[loc]
-	if noZero {
+	if allowZero {
 		if v == 0 {
 			return false
 		}
