@@ -20,8 +20,9 @@ const enableFastPathPrune = true
 // 2D matrix in 1D representation: each cell is matrix[row*9+column].
 // The result will be filled in-place.
 // Return success or not and Statistics.
-func Solve(matrix []byte) (bool, Statistics) {
+func Solve(m []byte) (bool, Statistics) {
 
+	matrix = m
 	stat = Statistics{}
 
 	startTime := time.Now().UnixNano() / 1e6
