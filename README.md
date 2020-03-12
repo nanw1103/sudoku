@@ -14,7 +14,7 @@ To learn go, the implemented algorithm adopts a straightforward backtracing with
 
 ```
 go build
-suduku [fileName]
+sudoku [fileName]
 ```
 or
 ```
