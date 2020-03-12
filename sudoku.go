@@ -22,8 +22,12 @@ const enableFastPathPrune = true
 // Return success or not and Statistics.
 func Solve(m []byte) (bool, Statistics) {
 
-	matrix = m
 	stat = Statistics{}
+	if !ValidateInput(m) {
+		return false, stat
+	}
+
+	matrix = m
 
 	startTime := time.Now().UnixNano() / 1e6
 
@@ -599,7 +603,7 @@ func ValidateInput(matrix []byte) bool {
 			return false
 		}
 
-		if !validateOne(matrix, loc, false) {
+		if !validateOne(matrix, loc, true) {
 			return false
 		}
 	}
@@ -609,7 +613,7 @@ func ValidateInput(matrix []byte) bool {
 // ValidateSolved validates the result of a solved Sudoku matrix
 func ValidateSolved(array []byte) bool {
 	for loc := 0; loc < 81; loc++ {
-		if !validateOne(array, loc, true) {
+		if !validateOne(array, loc, false) {
 			return false
 		}
 	}
@@ -620,11 +624,11 @@ func validateOne(array []byte, loc int, allowZero bool) bool {
 	v := array[loc]
 	if allowZero {
 		if v == 0 {
-			return false
+			return true
 		}
 	} else {
 		if v == 0 {
-			return true
+			return false
 		}
 	}
 

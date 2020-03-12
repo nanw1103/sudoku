@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -10,8 +11,12 @@ import (
 func main() {
 
 	if len(os.Args) > 1 {
-		solveFile(os.Args[1], true)
-		return
+		success := solveFile(os.Args[1], true)
+		if success {
+			os.Exit(0)
+		} else {
+			os.Exit(1)
+		}
 	}
 
 	files, err := ioutil.ReadDir("./")
@@ -28,36 +33,40 @@ func main() {
 	}
 }
 
-func solveFile(name string, verbose bool) {
+func solveFile(name string, verbose bool) bool {
 
-	matrix := readFile(name)
+	matrix, err := ReadMatrixFile(name)
 
-	if !ValidateInput(matrix) {
-		fmt.Printf("%10s	", name)
-		fmt.Println(" <Invalid input>")
-		return
+	if err != nil {
+		fmt.Printf("%-10s	", name)
+		fmt.Println(" Error:", err.Error())
+		return false
 	}
 
 	if verbose {
 		printMatrix(matrix)
 		success, stat := Solve(matrix)
-		printMatrix(matrix)
-		printStat(stat)
-		if !success {
-			fmt.Println("No solution found")
-		}
-	} else {
-		fmt.Printf("%10s	", name)
-		success, stat := Solve(matrix)
 
 		if success {
-			fmt.Print("V		")
+			printMatrix(matrix)
 		} else {
-			fmt.Print("X		")
+			fmt.Println("\nNo solution found")
 		}
-		fmt.Print(stat.backward, "		", stat.timeCost, "	", stat.gaps, "	", stat.fastPathFill, "		", stat.deducePrune)
-		fmt.Println()
+		printStat(stat)
+		return success
 	}
+
+	fmt.Printf("%-10s	", name)
+	success, stat := Solve(matrix)
+
+	if success {
+		fmt.Print("V		")
+	} else {
+		fmt.Print("X		")
+	}
+	fmt.Print(stat.backward, "		", stat.timeCost, "	", stat.gaps, "	", stat.fastPathFill, "		", stat.deducePrune)
+	fmt.Println()
+	return success
 }
 
 func printMatrix(array []byte) {
@@ -87,10 +96,12 @@ func printStat(stat Statistics) {
 	fmt.Println("Time ms:", stat.timeCost)
 }
 
-func readFile(file string) []byte {
+// ReadMatrixFile reads the specified file as sudoku matrix
+func ReadMatrixFile(file string) ([]byte, error) {
 	dat, err := ioutil.ReadFile(file)
 	if err != nil {
-		panic(err)
+		//panic(err)
+		return nil, err
 	}
 
 	text := string(dat)
@@ -112,5 +123,10 @@ func readFile(file string) []byte {
 			matrix[r*9+c] = v - '0'
 		}
 	}
-	return matrix
+
+	if !ValidateInput(matrix) {
+		return matrix, errors.New("Invalid Sudoku matrix")
+	}
+
+	return matrix, nil
 }
